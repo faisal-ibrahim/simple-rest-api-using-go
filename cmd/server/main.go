@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	transportHTTP "github.com/faisal-ibrahim/simple-rest-api-using-go/internal/transport/http"
+	"github.com/github.com/faisal-ibrahim/simple-rest-api-using-go/internal/database"
+	transportHTTP "github.com/github.com/faisal-ibrahim/simple-rest-api-using-go/internal/transport/http"
 	"net/http"
 )
 
@@ -13,8 +14,13 @@ type App struct {
 // Run - handles the startup of our application
 func (app *App) Run() error {
 	fmt.Println("Setting up our App!")
-	handler := transportHTTP.NewHandler()
+	var err error
+	_, err = database.NewDatabase()
+	if err != nil {
+		return err
+	}
 
+	handler := transportHTTP.NewHandler()
 	handler.SetupRoutes()
 	if err := http.ListenAndServe(":8080", handler.Router); err != nil {
 		fmt.Println("Failed to set up server")
