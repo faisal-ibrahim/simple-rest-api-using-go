@@ -18,7 +18,7 @@ type Comment struct {
 	Created time.Time
 }
 
-type CommentService interface {
+type ServiceCommentInterface interface {
 	GetComment(ID uint) (Comment, error)
 	GetCommentBySlug(slug string) ([]Comment, error)
 	PostComment(comment Comment) (Comment, error)
@@ -31,4 +31,13 @@ func NewService(db *gorm.DB) *Service {
 	return &Service{
 		DB: db,
 	}
+}
+
+func (s *Service) GetComment(ID uint) (Comment, error) {
+	var comment Comment
+	if result := s.DB.First(&comment, ID); result.Error != nil {
+		return Comment{}, result.Error
+	}
+
+	return comment, nil
 }
