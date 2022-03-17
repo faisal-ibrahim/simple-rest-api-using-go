@@ -17,6 +17,7 @@ type Comment struct {
 	Author  string
 	Created time.Time
 }
+
 type CommentService interface {
 	GetComment(ID uint) (Comment, error)
 	GetCommentBySlug(slug string) ([]Comment, error)
