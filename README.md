@@ -1,1 +1,1 @@
-# simple-rest-api-using-go
+# Building a Production Ready REST API in Go
