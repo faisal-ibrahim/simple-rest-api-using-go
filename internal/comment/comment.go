@@ -35,7 +35,26 @@ func NewService(db *gorm.DB) *Service {
 
 func (s *Service) GetComment(ID uint) (Comment, error) {
 	var comment Comment
+
 	if result := s.DB.First(&comment, ID); result.Error != nil {
+		return Comment{}, result.Error
+	}
+
+	return comment, nil
+}
+
+func (s *Service) GetCommentBySlug(slug string) ([]Comment, error) {
+	var comments []Comment
+
+	if result := s.DB.Find(&comments).Where("slug = ?", slug); result.Error != nil {
+		return []Comment{}, result.Error
+	}
+
+	return comments, nil
+}
+
+func (s *Service) PostComment(comment Comment) (Comment, error) {
+	if result := s.DB.Save(&comment); result.Error != nil {
 		return Comment{}, result.Error
 	}
 
