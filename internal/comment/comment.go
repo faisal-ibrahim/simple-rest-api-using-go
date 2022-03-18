@@ -60,3 +60,25 @@ func (s *Service) PostComment(comment Comment) (Comment, error) {
 
 	return comment, nil
 }
+
+func (s *Service) UpdateComment(ID uint, newComment Comment) (Comment, error) {
+	comment, err := s.GetComment(ID)
+
+	if err != nil {
+		return Comment{}, err
+	}
+
+	if result := s.DB.Model(&comment).Updates(newComment); result.Error != nil {
+		return Comment{}, result.Error
+	}
+
+	return comment, nil
+}
+
+func (s *Service) DeleteComment(ID uint) error {
+	if result := s.DB.Delete(&Comment{}, ID); result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/github.com/faisal-ibrahim/simple-rest-api-using-go/internal/comment"
 	"github.com/github.com/faisal-ibrahim/simple-rest-api-using-go/internal/database"
 	transportHTTP "github.com/github.com/faisal-ibrahim/simple-rest-api-using-go/internal/transport/http"
 	"net/http"
@@ -15,12 +16,14 @@ type App struct {
 func (app *App) Run() error {
 	fmt.Println("Setting up our App!")
 	var err error
-	_, err = database.NewDatabase()
+	db, err := database.NewDatabase()
 	if err != nil {
 		return err
 	}
 
-	handler := transportHTTP.NewHandler()
+	commentService := comment.NewService(db)
+
+	handler := transportHTTP.NewHandler(commentService)
 	handler.SetupRoutes()
 	if err := http.ListenAndServe(":8080", handler.Router); err != nil {
 		fmt.Println("Failed to set up server")
