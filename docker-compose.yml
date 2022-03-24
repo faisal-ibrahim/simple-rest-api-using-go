@@ -22,11 +22,11 @@ services:
       DB_USERNAME: "postgres"
       DB_PASSWORD: "postgres"
       DB_DB: "postgres"
-      DB_host: "db"
+      DB_HOST: "db"
       DB_TABLE: "postgres"
-      DB_POST: "5432"
+      DB_PORT: "5432"
     ports:
-      - "8080:8080"
+      - "3000:3000"
     depends_on:
       - db
     networks:
