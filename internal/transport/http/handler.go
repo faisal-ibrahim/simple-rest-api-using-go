@@ -18,6 +18,7 @@ type Handler struct {
 
 type Response struct {
 	Message string
+	Error   string
 }
 
 // NewHandler - returns a pointer to a Handler
@@ -59,12 +60,12 @@ func (h *Handler) GetComment(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Unable to parse uint from ID")
 	}
 
-	comment, err := h.Service.GetComment(uint(i))
+	cmnt, err := h.Service.GetComment(uint(i))
 	if err != nil {
 		fmt.Fprintf(w, "Error retriving comment by ID!")
 	}
 
-	if err := json.NewEncoder(w).Encode(comment); err != nil {
+	if err := json.NewEncoder(w).Encode(cmnt); err != nil {
 		panic(err)
 	}
 }
@@ -85,15 +86,21 @@ func (h *Handler) GetAllComments(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) PostComment(w http.ResponseWriter, r *http.Request) {
-	comment, err := h.Service.PostComment(comment.Comment{
-		Slug: "/",
-	})
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
 
-	if err != nil {
-		fmt.Fprintf(w, "Faild to post new comment")
+	var cmt comment.Comment
+	if err := json.NewDecoder(r.Body).Decode(&cmt); err != nil {
+		fmt.Fprintf(w, "Failed to decode JSON Body")
 	}
 
-	fmt.Fprintf(w, "%+v", comment)
+	cmt, err := h.Service.PostComment(cmt)
+	if err != nil {
+		fmt.Fprintf(w, "Failed to post new comment")
+	}
+	if err := json.NewEncoder(w).Encode(cmt); err != nil {
+		panic(err)
+	}
 }
 
 // UpdateComment - updates a comment by ID
@@ -103,5 +110,28 @@ func (h *Handler) UpdateComment(w http.ResponseWriter, r *http.Request) {
 
 // DeleteComment - deletes a comment by ID
 func (h *Handler) DeleteComment(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	vars := mux.Vars(r)
+	id := vars["id"]
+	commentID, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		sendErrorResponse(w, "Failed to parse uint from ID", err)
+	}
 
+	err = h.Service.DeleteComment(uint(commentID))
+	if err != nil {
+		sendErrorResponse(w, "Failed to delete comment by comment ID", err)
+	}
+
+	if err := json.NewEncoder(w).Encode(Response{Message: "Successfully Deleted"}); err != nil {
+		panic(err)
+	}
+}
+
+func sendErrorResponse(w http.ResponseWriter, message string, err error) {
+	w.WriteHeader(http.StatusInternalServerError)
+	if err := json.NewEncoder(w).Encode(Response{Message: message, Error: err.Error()}); err != nil {
+		panic(err)
+	}
 }
