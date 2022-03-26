@@ -1,6 +1,7 @@
 package http
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/github.com/faisal-ibrahim/simple-rest-api-using-go/internal/comment"
 	"net/http"
@@ -13,6 +14,10 @@ import (
 type Handler struct {
 	Router  *mux.Router
 	Service *comment.Service
+}
+
+type Response struct {
+	Message string
 }
 
 // NewHandler - returns a pointer to a Handler
@@ -34,11 +39,18 @@ func (h *Handler) SetupRoutes() {
 	h.Router.HandleFunc("/api/comment/delete/{id}", h.DeleteComment).Methods("DELETE")
 
 	h.Router.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "I am alive!")
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(http.StatusOK)
+		if err := json.NewEncoder(w).Encode(Response{Message: "I am alive"}); err != nil {
+			panic(err)
+		}
 	})
 }
 
 func (h *Handler) GetComment(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+
 	vars := mux.Vars(r)
 	id := vars["id"]
 
@@ -52,17 +64,24 @@ func (h *Handler) GetComment(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Error retriving comment by ID!")
 	}
 
-	fmt.Fprintf(w, "%+v", comment)
+	if err := json.NewEncoder(w).Encode(comment); err != nil {
+		panic(err)
+	}
 }
 
 func (h *Handler) GetAllComments(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+
 	comments, err := h.Service.GetAllComments()
 
 	if err != nil {
 		fmt.Fprintf(w, "Faild to retrive all comments!")
 	}
 
-	fmt.Fprintf(w, "%+v", comments)
+	if err := json.NewEncoder(w).Encode(comments); err != nil {
+		panic(err)
+	}
 }
 
 func (h *Handler) PostComment(w http.ResponseWriter, r *http.Request) {
