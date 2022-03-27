@@ -40,6 +40,7 @@ func (s *Service) GetComment(ID uint) (Comment, error) {
 	if result := s.DB.First(&comment, ID); result.Error != nil {
 		return Comment{}, result.Error
 	}
+
 	return comment, nil
 }
 
@@ -49,6 +50,7 @@ func (s *Service) GetCommentsBySlug(slug string) ([]Comment, error) {
 	if result := s.DB.Find(&comments).Where("slug = ?", slug); result.Error != nil {
 		return []Comment{}, result.Error
 	}
+
 	return comments, nil
 }
 
@@ -57,6 +59,7 @@ func (s *Service) PostComment(comment Comment) (Comment, error) {
 	if result := s.DB.Save(&comment); result.Error != nil {
 		return Comment{}, result.Error
 	}
+
 	return comment, nil
 }
 
@@ -79,6 +82,7 @@ func (s *Service) DeleteComment(ID uint) error {
 	if result := s.DB.Delete(&Comment{}, ID); result.Error != nil {
 		return result.Error
 	}
+
 	return nil
 }
 
