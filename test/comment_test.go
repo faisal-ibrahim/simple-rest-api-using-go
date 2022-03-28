@@ -11,7 +11,7 @@ import (
 func TestPostComment(t *testing.T) {
 	client := resty.New()
 	resp, err := client.R().
-		SetBody(`{"id": 12345, "slug": "/", "author": "123455", "body": "hello world"}`).
+		SetBody(`{"id": 123, "slug": "hello", "author": "1235", "body": "hello world"}`).
 		Post(BASE_URL + "/api/comment")
 
 	if err != nil {
@@ -24,7 +24,7 @@ func TestPostComment(t *testing.T) {
 
 func TestGetComment(t *testing.T) {
 	client := resty.New()
-	resp, err := client.R().Get(BASE_URL + "/api/comment/12345")
+	resp, err := client.R().Get(BASE_URL + "/api/comment/123")
 	if err != nil {
 		t.Fatal()
 	}
@@ -36,8 +36,19 @@ func TestGetComment(t *testing.T) {
 func TestUpdateComment(t *testing.T) {
 	client := resty.New()
 	resp, err := client.R().
-		SetBody(`{"slug": "/", "author": "123455", "body": "hello world update"}`).
-		Put(BASE_URL + "/api/comment/12345")
+		SetBody(`{"slug": "hello", "author": "1235", "body": "hello world update"}`).
+		Put(BASE_URL + "/api/comment/123")
+
+	assert.NoError(t, err)
+	assert.Equal(t, 200, resp.StatusCode())
+}
+
+func TestGetCommentsBySlug(t *testing.T) {
+	client := resty.New()
+	resp, err := client.R().Get(BASE_URL + "/api/comment-by-slug/hello")
+	if err != nil {
+		t.Fatal()
+	}
 
 	assert.NoError(t, err)
 	assert.Equal(t, 200, resp.StatusCode())
@@ -45,7 +56,7 @@ func TestUpdateComment(t *testing.T) {
 
 func TestDeleteComment(t *testing.T) {
 	client := resty.New()
-	resp, err := client.R().Delete(BASE_URL + "/api/comment/12345")
+	resp, err := client.R().Delete(BASE_URL + "/api/comment/123")
 	if err != nil {
 		t.Fatal()
 	}

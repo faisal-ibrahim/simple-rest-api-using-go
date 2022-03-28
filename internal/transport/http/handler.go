@@ -36,6 +36,7 @@ func (h *Handler) SetupRoutes() {
 	h.Router.HandleFunc("/api/comment", h.GetAllComments).Methods("GET")
 	h.Router.HandleFunc("/api/comment", h.PostComment).Methods("POST")
 	h.Router.HandleFunc("/api/comment/{id}", h.GetComment).Methods("GET")
+	h.Router.HandleFunc("/api/comment-by-slug/{slug}", h.GetCommentsBySlug).Methods("GET")
 	h.Router.HandleFunc("/api/comment/{id}", h.UpdateComment).Methods("PUT")
 	h.Router.HandleFunc("/api/comment/{id}", h.DeleteComment).Methods("DELETE")
 
@@ -59,6 +60,21 @@ func (h *Handler) GetComment(w http.ResponseWriter, r *http.Request) {
 	cmnt, err := h.Service.GetComment(uint(i))
 	if err != nil {
 		sendErrorResponse(w, "Error retrieving comment by ID!", err)
+		return
+	}
+
+	if err := sendOkResponse(w, cmnt); err != nil {
+		panic(err)
+	}
+}
+
+func (h *Handler) GetCommentsBySlug(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	slug := vars["slug"]
+
+	cmnt, err := h.Service.GetCommentsBySlug(slug)
+	if err != nil {
+		sendErrorResponse(w, "Error retrieving comment by slug!", err)
 		return
 	}
 
